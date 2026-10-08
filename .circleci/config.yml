@@ -25,8 +25,23 @@ jobs:
       - checkout
 
       - run:
+          name: Login to Docker Hub
+          command: |
+            echo "" | docker login -u "" --password-stdin
+
+      - run:
           name: Build Docker image
-          command: docker build -t deployment-guard:ci .
+          command: |
+            docker build \
+              -t "/deployment-guard:latest" \
+              -t "/deployment-guard:" \
+              .
+
+      - run:
+          name: Push Docker image
+          command: |
+            docker push "/deployment-guard:latest"
+            docker push "/deployment-guard:"
 
 workflows:
   deployment-pipeline:
