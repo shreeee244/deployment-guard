@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-guard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deployment-guard
+  template:
+    metadata:
+      labels:
+        app: deployment-guard
+    spec:
+      containers:
+        - name: deployment-guard
+          image: shrustieeepatil/deployment-guard:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: APP_VERSION
+              value: "v1"
+            - name: FAIL_RATE
+              value: "0"
+            - name: EXTRA_LATENCY
+              value: "0"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
