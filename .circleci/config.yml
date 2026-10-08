@@ -1,0 +1,37 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.12
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: pip install -r app/requirements.txt
+
+      - run:
+          name: Test application
+          command: |
+            python -c "from app.app import app; client = app.test_client(); response = client.get('/health'); assert response.status_code == 200; print('Health check passed')"
+
+  docker-build:
+    machine:
+      image: ubuntu-2204:current
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Docker image
+          command: docker build -t deployment-guard:ci .
+
+workflows:
+  deployment-pipeline:
+    jobs:
+      - test
+      - docker-build:
+          requires:
+            - test
